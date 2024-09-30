@@ -1,21 +1,38 @@
 import streamlit as st
-from langchain.llms import OpenAI
+import requests
 import re
 
-# Initialize OpenAI LLM with your API key
-llm = OpenAI(model="text-davinci-003", openai_api_key="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")
+# Replace with your actual Groq API key
+GROQ_API_KEY = "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"
 
 def generate_content(topic, max_length=1000):
     # Prepare the prompt for content generation
     prompt = f"Generate the best solutions and advice to the problem in the topic: {topic}\n\n"
+
+    # Make an API call to Groq
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json",
+    }
     
-    # Generate the content using the LLM
-    generated_content = llm(prompt)
+    # Assuming the Groq API has an endpoint like this (adjust according to their docs)
+    api_url = "https://api.groq.com/v1/completions"  # Update based on Groq's actual API URL
     
-    # Optionally split the generated content into smaller sections or pages
-    pages = re.split(r"\n{2,}", generated_content)  # Split by two newlines for better structure
+    data = {
+        "prompt": prompt,
+        "max_tokens": max_length,
+    }
     
-    return pages
+    response = requests.post(api_url, headers=headers, json=data)
+
+    if response.status_code == 200:
+        generated_content = response.json().get("choices", [])[0].get("text", "")
+        # Optionally split the generated content into pages
+        pages = re.split(r"\n{2,}", generated_content)  # Split by two newlines for better structure
+        return pages
+    else:
+        st.error(f"Error: {response.status_code} - {response.text}")
+        return []
 
 def download_text(text):
     # Save the generated solutions into a text file
