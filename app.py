@@ -1,9 +1,9 @@
 import streamlit as st
-from langchain.llms import CTransformers
+from langchain.llms import OpenAI
 import re
 
-# Load the Llama 2-7b model
-model = CTransformers(model='llama-2-7b-chat.ggmlv3.q8_0.bin', model_type='llama', allow_reuse=True)
+
+llm = OpenAI(model="text-davinci-003")
 
 def generate_content(topic, max_length=1000):
     # Prepare the prompt for content generation
